@@ -44,7 +44,8 @@ def train(net, train_loader, eval_loader, args):
             z = z.cuda()
             ans = ans.cuda()
 
-            pred = net(x, y, z)
+            #pred = net(x, y, z)
+            pred = net(x,z,y)
             loss = loss_fn(pred, ans)
             loss.backward()
 
@@ -88,8 +89,8 @@ def train(net, train_loader, eval_loader, args):
         # Eval
         if epoch_finish >= args.eval_start:
             print('Evaluation...')
-            accuracy, _ = evaluate(net, eval_loader, args)
-            print('Accuracy :'+str(accuracy))
+            accuracy, _, val_loss = evaluate(net, eval_loader, args)
+            print('Accuracy :'+str(accuracy) + "    "+'val_loss :' + str(val_loss))
             eval_accuracies.append(accuracy)
             if accuracy > best_eval_accuracy:
                 # Best
@@ -136,7 +137,9 @@ def train(net, train_loader, eval_loader, args):
 
 def evaluate(net, eval_loader, args):
     accuracy = []
+    loss_fn = args.loss_fn
     net.train(False)
+    loss_sum =0
     preds = {}
     for step, (
             ids,
@@ -148,16 +151,18 @@ def evaluate(net, eval_loader, args):
         x = x.cuda()
         y = y.cuda()
         z = z.cuda()
-        pred = net(x, y, z).cpu().data.numpy()
-
-        if not eval_loader.dataset.private_set:
-            ans = ans.cpu().data.numpy()
-            accuracy += list(eval(args.pred_func)(pred) == ans)
+        with torch.no_grad:
+            pred = net(x, z, y).cpu().data.numpy()
+        #pred = net(x, y, z).cpu().data.numpy()
+            loss_sum += loss_fn(pred, ans).cpu().data.numpy()
+            if not eval_loader.dataset.private_set:
+                ans = ans.cpu().data.numpy()
+                accuracy += list(eval(args.pred_func)(pred) == ans)
             
         # Save preds
         for id, p in zip(ids, pred):
             preds[id] = p
 
     net.train(True)
-    return 100*np.mean(np.array(accuracy)), preds
+    return 100*np.mean(np.array(accuracy)),preds,loss_sum / len(eval_loader)
 

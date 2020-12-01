@@ -65,7 +65,7 @@ if __name__ == '__main__':
 
         # Evaluation per checkpoint predictions
         for set in evaluation_sets:
-            accuracy, preds = evaluate(net, loaders[set], args)
+            accuracy, preds, _ = evaluate(net, loaders[set], args)
             print('Accuracy for ' + set + ' for model ' + ckpt + ":", accuracy)
             for id, pred in preds.items():
                 if id not in ensemble_preds[set]:

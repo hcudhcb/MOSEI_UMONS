@@ -242,7 +242,8 @@ class Block(nn.Module):
         self.last = (i == args.layer-1)
         if not self.last:
             self.att_lang = AttFlat(args, args.lang_seq_len, merge=False)
-            self.att_audio = AttFlat(args, args.audio_seq_len, merge=False)
+            self.att_img = AttFlat(args, args.video_seq_len, merge=False)
+            #self.att_audio = AttFlat(args, args.audio_seq_len, merge=False)
             self.norm_l = LayerNorm(args.hidden_size)
             self.norm_i = LayerNorm(args.hidden_size)
             self.dropout = nn.Dropout(args.dropout_r)
@@ -259,7 +260,8 @@ class Block(nn.Module):
             return x, y
 
         ax = self.att_lang(x, x_mask)
-        ay = self.att_audio(y, y_mask)
+        ay = self.att_img(y, y_mask)
+        #ay = self.att_audio(y, y_mask)
 
         return self.norm_l(x + self.dropout(ax)), \
                self.norm_i(y + self.dropout(ay))
@@ -288,7 +290,8 @@ class Model_LA(nn.Module):
         )
 
         self.lstm_y = nn.LSTM(
-            input_size=args.audio_feat_size,
+            input_size=args.video_feat_size,
+            #input_size=args.audio_feat_size,
             hidden_size=args.hidden_size,
             num_layers=1,
             batch_first=True
