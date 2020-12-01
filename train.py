@@ -151,13 +151,13 @@ def evaluate(net, eval_loader, args):
         x = x.cuda()
         y = y.cuda()
         z = z.cuda()
-        with torch.no_grad:
-            pred = net(x, z, y).cpu().data.numpy()
+        # with torch.no_grad:
+        pred = net(x, z, y).cpu().data.numpy()
         #pred = net(x, y, z).cpu().data.numpy()
-            loss_sum += loss_fn(pred, ans).cpu().data.numpy()
-            if not eval_loader.dataset.private_set:
-                ans = ans.cpu().data.numpy()
-                accuracy += list(eval(args.pred_func)(pred) == ans)
+        loss_sum += loss_fn(pred, ans).cpu().data.numpy()
+        if not eval_loader.dataset.private_set:
+            ans = ans.cpu().data.numpy()
+            accuracy += list(eval(args.pred_func)(pred) == ans)
             
         # Save preds
         for id, p in zip(ids, pred):
