@@ -149,6 +149,7 @@ def evaluate(net, eval_loader, args):
         x = x.cuda()
         y = y.cuda()
         z = z.cuda()
+        ans = ans.cuda()
         # with torch.no_grad:
         pred = net(x, z, y)
         loss = loss_fn(pred, ans)
