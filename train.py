@@ -132,8 +132,6 @@ def train(net, train_loader, eval_loader, args):
                     logfile.close()
                     return eval_accuracies
 
-        loss_sum = 0
-
 
 def evaluate(net, eval_loader, args):
     accuracy = []
@@ -152,9 +150,11 @@ def evaluate(net, eval_loader, args):
         y = y.cuda()
         z = z.cuda()
         # with torch.no_grad:
-        pred = net(x, z, y).cpu().data.numpy()
+        pred = net(x, z, y)
+        loss = loss_fn(pred, ans)
         #pred = net(x, y, z).cpu().data.numpy()
-        loss_sum += loss_fn(pred, ans).cpu().data.numpy()
+        loss_sum += loss.cpu().data.numpy()
+        pred = pred.cpu().data.numpy
         if not eval_loader.dataset.private_set:
             ans = ans.cpu().data.numpy()
             accuracy += list(eval(args.pred_func)(pred) == ans)
