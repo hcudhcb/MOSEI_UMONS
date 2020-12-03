@@ -4,6 +4,7 @@ import time
 import numpy as np
 import os
 from utils.pred_func import *
+from tensorboardX import SummaryWriter
 
 def train(net, train_loader, eval_loader, args):
 
@@ -13,7 +14,7 @@ def train(net, train_loader, eval_loader, args):
         'w+'
     )
     logfile.write(str(args))
-
+    writer = SummaryWriter.add_scalar('image_original')
     loss_sum = 0
     best_eval_accuracy = 0.0
     early_stop = 0
@@ -60,7 +61,8 @@ def train(net, train_loader, eval_loader, args):
                       *[group['lr'] for group in optim.param_groups],
                       ((time.time() - time_start) / (step + 1)) * ((len(train_loader.dataset) / args.batch_size) - step) / 60,
                   ), end='          ')
-
+            if step % 100 == 0:
+                writer.add_scalar('image_original/batch_Loss', loss_tmp / args.batch_size, global_step= epoch * 510 + step)
             # Gradient norm clipping
             if args.grad_norm_clip > 0:
                 nn.utils.clip_grad_norm_(
@@ -84,12 +86,13 @@ def train(net, train_loader, eval_loader, args):
             ', Speed(s/batch): ' + str(elapse_time / step) +
             '\n\n'
         )
-
+        writer.add_scalar('image_original/epoch_Loss', loss_sum / len(train_loader.dataset), global_step=epoch_finish)
         # Eval
         if epoch_finish >= args.eval_start:
             print('Evaluation...')
             accuracy, _ = evaluate(net, eval_loader, args)
             print('Accuracy :'+str(accuracy))
+            writer.add_scalar('image_original/Accuracy', accuracy, global_step=epoch_finish)
             eval_accuracies.append(accuracy)
             if accuracy > best_eval_accuracy:
                 # Best
@@ -153,7 +156,6 @@ def evaluate(net, eval_loader, args):
         if not eval_loader.dataset.private_set:
             ans = ans.cpu().data.numpy()
             accuracy += list(eval(args.pred_func)(pred) == ans)
-            
         # Save preds
         for id, p in zip(ids, pred):
             preds[id] = p
