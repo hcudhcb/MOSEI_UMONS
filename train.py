@@ -14,7 +14,7 @@ def train(net, train_loader, eval_loader, args):
         'w+'
     )
     logfile.write(str(args))
-    writer = SummaryWriter.add_scalar('image_original')
+    writer = SummaryWriter('image_original')
     loss_sum = 0
     best_eval_accuracy = 0.0
     early_stop = 0
