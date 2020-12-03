@@ -56,7 +56,7 @@ if __name__ == '__main__':
     # Base on args given, compute new args
     os.system('nvidia-smi -q -d Memory |grep -A4 GPU|grep Free >tmp')
     memory_gpu = [int(x.split()[2]) for x in open('tmp', 'r').readlines()]
-    torch.cuda.set_device(np.argmax(memory_gpu))
+    torch.cuda.set_device(int(np.argmax(memory_gpu)))
     os.system('rm tmp')  # 删除临时生成的 tmp 文件
     args = compute_args(parse_args())
 
