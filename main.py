@@ -63,9 +63,10 @@ if __name__ == '__main__':
     # Seed
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
+    torch.cuda.manual_seed(args.seed)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
-
+    print(args.seed)
     # DataLoader
     train_dset = eval(args.dataloader)('train', args)
     eval_dset = eval(args.dataloader)('valid', args, train_dset.token_to_ix)
