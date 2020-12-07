@@ -81,6 +81,7 @@ class SA(nn.Module):
         self.norm2 = LayerNorm(args.hidden_size)
 
     def forward(self, y, y_mask):
+
         y = self.norm1(y + self.dropout1(
             self.mhatt(y, y, y, y_mask)
         ))
@@ -114,13 +115,14 @@ class SGA(nn.Module):
         self.norm3 = LayerNorm(args.hidden_size)
 
     def forward(self, x, y, x_mask, y_mask):
+        #y:文本
         y = self.norm1(y + self.dropout1(
             #self.mhatt1(v=x, k=x, q=x, mask=x_mask)
             self.mhatt1(v=y, k=y, q=y, mask=y_mask)
         ))
 
         y = self.norm2(y + self.dropout2(
-            self.mhatt2(v=x, k=x, q=y, mask=x_mask)
+            self.mhatt2(v=x, k=y, q=y, mask=x_mask)
         ))
 
         y = self.norm3(y + self.dropout3(
@@ -128,6 +130,24 @@ class SGA(nn.Module):
         ))
 
         return y
+
+
+        # x = self.norm1(x + self.dropout1(
+        #     #self.mhatt1(v=x, k=x, q=x, mask=x_mask)
+        #     self.mhatt1(v=x, k=x, q=x, mask=x_mask)
+        # ))
+        #
+        # x = self.norm2(x + self.dropout2(
+        #     self.mhatt2(v=y, k=y, q=x, mask=y_mask)
+        # ))
+        #
+        # x = self.norm3(x + self.dropout3(
+        #     self.ffn(x)
+        # ))
+        #
+        # return x
+
+
 
 # ------------------------------
 # ---- Multi-Head Attention ----
